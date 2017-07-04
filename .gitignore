@@ -43,3 +43,6 @@ logs
 .pmd
 .classpath
 application.properties
+
+UI/package-lock.json
+api/dashboard.properties
