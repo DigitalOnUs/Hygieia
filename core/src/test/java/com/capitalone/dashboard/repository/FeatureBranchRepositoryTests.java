@@ -101,5 +101,123 @@ public class FeatureBranchRepositoryTests extends FongoBaseRepositoryTest {
 		assertEquals("Expected FeatureBranch Commit ID did not match ; findByCommitIdFirstCommit() not functioning as required ",
 			testCompare.getCommitIdThatTriggeredBuild(), commitIdThatTriggeredBuild);		
 	}
+
+	
+	/*
+		For tests, FeatureBranch objects are created in a manner such that
+			
+			featureBranchOne.firstCommitTimeStamp < featureBranchTwo.firstCommitTimeStamp  < featureBranchThree.firstCommitTimeStamp 
+			
+			featureBranchOne.deployTimeStamp < featureBranchTwo.deployTimeStamp < featureBranchThree.deployTimeStamp
+
+			FeatureBranch.firstCommitTimeStamp < FeatureBranch.deployTimeStamp
+	*/
+	
+	/*
+		For Functions findByTimeFrame(), findByFirstCommitTimeFrame() and findByDeployTimeFrame() 
+		of FeatureBranchRepository,
+
+		Case 1 : let timeStamp1 < fetureOne.firstCommitTimeStamp
+				 and timeStamp2 = featureBranchThree.deployTimeStamp  
+
+		Expectations:
+				 All 3 functions must return 3 FeatureBranch objects
+	*/
+
+	@Test
+	public void testCaseOne()
+	{
+		featureBranchRepository.save(featureBranchOne);
+		featureBranchRepository.save(featureBranchTwo);
+		featureBranchRepository.save(featureBranchThree);
+
+		long t1 = featureBranchOne.getFirstCommitTimeStamp();
+		long t2 = featureBranchThree.getDeployTimeStamp();
+
+		List<FeatureBranch> listFeatureBranchFirstCommit = featureBranchRepository.findByFirstCommitTimeFrame(t1,t2);
+		List<FeatureBranch> listFeatureBranchDeploy = featureBranchRepository.findByDeployTimeFrame(t1,t2);
+		List<FeatureBranch> listFeatureBranch = featureBranchRepository.findByTimeFrame(t1,t2);
+
+		assertEquals("FeatureBranch => findByFirstCommitTimeFrame() not functioning as required ",
+			listFeatureBranchFirstCommit.size(),3);
+		
+		assertEquals("FeatureBranch => findByDeployTimeFrame() not functioning as required ",
+			listFeatureBranchDeploy.size(),3);
+		
+		assertEquals("FeatureBranch => findByTimeFrame() not functioning as required ",
+			listFeatureBranch.size(),3);
+	}
+
+
+	/*
+		Case 2 : timeStamp1 <= featureBranchOne.firstCommitTimeStamp
+				 timeStamp2 >= featureBranchTwo.deployTimeStamp 
+
+		Expectations:
+				All Functions must return only 2 objects
+	*/
+
+	@Test
+	public void testCaseTwo()
+	{
+		featureBranchRepository.save(featureBranchOne);
+		featureBranchRepository.save(featureBranchTwo);
+		featureBranchRepository.save(featureBranchThree);
+
+		long t1 = featureBranchOne.getFirstCommitTimeStamp();
+		long t2 = featureBranchTwo.getDeployTimeStamp();
+
+		List<FeatureBranch> listFeatureBranchFirstCommit = featureBranchRepository.findByFirstCommitTimeFrame(t1,t2);
+		List<FeatureBranch> listFeatureBranchDeploy = featureBranchRepository.findByDeployTimeFrame(t1,t2);
+		List<FeatureBranch> listFeatureBranch = featureBranchRepository.findByTimeFrame(t1,t2);
+
+		assertEquals("FeatureBranch => findByFirstCommitTimeFrame() not functioning as required ",
+			listFeatureBranchFirstCommit.size(),2);
+		
+		assertEquals("FeatureBranch => findByDeployTimeFrame() not functioning as required ",
+			listFeatureBranchDeploy.size(),2);
+		
+		assertEquals("FeatureBranch => findByTimeFrame() not functioning as required ",
+			listFeatureBranch.size(),2);
+	}
+
+	/*
+		Case 3 : Verify whether the correct FeatureBranch object is returned
+		Expectations : Each Function returns a single and correct FeatureBranch object
+	*/
+
+	@Test
+	public void testCaseThree()
+	{
+		featureBranchRepository.save(featureBranchOne);
+		featureBranchRepository.save(featureBranchTwo);
+		featureBranchRepository.save(featureBranchThree);
+
+		List<FeatureBranch> featureBranchFirstCommit_list = featureBranchRepository.findByFirstCommitTimeFrame(
+			featureBranchOne.getDeployTimeStamp(),featureBranchTwo.getDeployTimeStamp());
+		
+		List<FeatureBranch> featureBranchDeploy_list = featureBranchRepository.findByDeployTimeFrame(
+			featureBranchTwo.getFirstCommitTimeStamp(),featureBranchThree.getFirstCommitTimeStamp());
+		
+		List<FeatureBranch> featureBranch_list = featureBranchRepository.findByTimeFrame(
+			featureBranchTwo.getFirstCommitTimeStamp(),featureBranchThree.getFirstCommitTimeStamp());
+
+		assertEquals("FeatureBranch => findByFirstCommitTimeFrame() not functioning as required ",
+			featureBranchFirstCommit_list.size(),1);
+		assertEquals("FeatureBranch => findByFirstCommitTimeFrame() not functioning as required ",
+			featureBranchFirstCommit_list.get(0).getId(),featureBranchTwo.getId());
+
+
+		assertEquals("FeatureBranch => findByDeployTimeFrame() not functioning as required ",
+			featureBranchDeploy_list.size(),1);
+		assertEquals("FeatureBranch => findByDeployTimeFrame() not functioning as required ",
+			featureBranchDeploy_list.get(0).getId(),featureBranchTwo.getId());
+		
+
+		assertEquals("FeatureBranch => findByTimeFrame() not functioning as required ",
+			featureBranch_list.size(),1);
+		assertEquals("FeatureBranch => findByTimeFrame() not functioning as required ",
+			featureBranch_list.get(0).getId(),featureBranchTwo.getId());
+	}
 	
 }
