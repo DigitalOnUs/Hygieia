@@ -10,17 +10,17 @@ public class FeatureBranch extends BaseModel {
     private String commitIdFirstCommit;
     private String commitIdThatTriggeredBuild;
     private String gitRepoUrl;
-    private String title;
+    private String name;
 
 
-    public void setTitle(String title)
+    public void setName(String name)
     {
-        this.title = title;
+        this.name = name;
     }
     
-    public String getTitle()
+    public String getName()
     {
-        return title;
+        return name;
     }
 
     public long getFirstCommitTimeStamp()
