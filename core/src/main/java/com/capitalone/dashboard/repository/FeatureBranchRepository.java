@@ -20,4 +20,5 @@ public interface FeatureBranchRepository extends CrudRepository<FeatureBranch, O
     */
     @Query(value="{ $or : [ { 'firstCommitTimeStamp' : {$exists: false} } , { 'commitIdFirstCommit' : {$exists: false}  } ] }")
     List<FeatureBranch> findByNull();
+
 }
