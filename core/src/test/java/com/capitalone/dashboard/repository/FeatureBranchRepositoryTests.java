@@ -133,7 +133,5 @@ public class FeatureBranchRepositoryTests extends FongoBaseRepositoryTest {
 
 		assertEquals("FeatureBranchRepository's findByNull() not functioning as expected",
 			featureBranchRepository.findByNull().size(),0);
-	}
-	
-	
+	}	
 }
