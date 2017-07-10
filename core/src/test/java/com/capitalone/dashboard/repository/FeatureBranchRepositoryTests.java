@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.lang.Iterable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +18,7 @@ public class FeatureBranchRepositoryTests extends FongoBaseRepositoryTest {
 	private static FeatureBranch featureBranchOne;
 	private static FeatureBranch featureBranchTwo;
 	private static FeatureBranch featureBranchThree;
+	private static FeatureBranch featureBranchFour;
 
 	@Autowired
 	private FeatureBranchRepository featureBranchRepository;
@@ -25,7 +27,7 @@ public class FeatureBranchRepositoryTests extends FongoBaseRepositoryTest {
 	public void setUp() {
 
 		featureBranchOne = new FeatureBranch();
-		featureBranchOne.setTitle("F1");
+		featureBranchOne.setName("F1");
 		featureBranchOne.setCommitIdFirstCommit("G001_FC");
 		featureBranchOne.setCommitIdThatTriggeredBuild("G011_TB");
 		featureBranchOne.setGitRepoUrl("api.github.com/repo/commits/G001-G011");
@@ -33,7 +35,7 @@ public class FeatureBranchRepositoryTests extends FongoBaseRepositoryTest {
 		featureBranchOne.setDeployTimeStamp(1499253944L); 			// 2017/07/05 :: 11:25:44
 		
 		featureBranchTwo = new FeatureBranch();
-		featureBranchTwo.setTitle("F2");
+		featureBranchTwo.setName("F2");
 		featureBranchTwo.setCommitIdFirstCommit("G002_FC");
 		featureBranchTwo.setCommitIdThatTriggeredBuild("G022_TB");
 		featureBranchTwo.setGitRepoUrl("api.github.com/repo/commits/G002-G022");
@@ -41,12 +43,18 @@ public class FeatureBranchRepositoryTests extends FongoBaseRepositoryTest {
 		featureBranchTwo.setDeployTimeStamp(1499453944L); 			//2017/07/07 :: 18:59:04
 
 		featureBranchThree = new FeatureBranch();
-		featureBranchThree.setTitle("F3");
+		featureBranchThree.setName("F3");
 		featureBranchThree.setCommitIdFirstCommit("G003_FC");
 		featureBranchThree.setCommitIdThatTriggeredBuild("G033_TB");
 		featureBranchThree.setGitRepoUrl("api.github.com/repo/commits/G003-G033");
 		featureBranchThree.setFirstCommitTimeStamp(1499553944L);	// 2017/07/08 22:45:54
 		featureBranchThree.setDeployTimeStamp(1499653944L); 		//2017/07/10 02:32:24
+
+		featureBranchFour = new FeatureBranch();
+		featureBranchFour.setName("F4");
+		featureBranchFour.setCommitIdThatTriggeredBuild("G04_TB");
+		featureBranchFour.setGitRepoUrl("api.github.com/repo/commits/G004-G04");
+		featureBranchFour.setDeployTimeStamp(1499753944L); 		//2017/07/11 06:19:14
 	}
 
 	@After
@@ -54,6 +62,7 @@ public class FeatureBranchRepositoryTests extends FongoBaseRepositoryTest {
 		featureBranchOne = null;
 		featureBranchTwo = null;
 		featureBranchThree = null;
+		featureBranchFour = null;
 		featureBranchRepository.deleteAll();
 	}
 
@@ -63,8 +72,15 @@ public class FeatureBranchRepositoryTests extends FongoBaseRepositoryTest {
 		featureBranchRepository.save(featureBranchTwo);
 		featureBranchRepository.save(featureBranchThree);
 
-		assertTrue("Save function validation for the FeatureBranchRepository has failed",
-				featureBranchRepository.findAll().iterator().hasNext());
+		Iterable<FeatureBranch> featureBranchIterable = featureBranchRepository.findAll();
+		int size = 0;
+		for ( FeatureBranch featureBranchObject : featureBranchIterable )
+		{
+			size++; 
+		}
+
+		assertEquals("Save function validation for the FeatureBranchRepository has failed",
+				size,3);
 	}
 
 
@@ -75,7 +91,7 @@ public class FeatureBranchRepositoryTests extends FongoBaseRepositoryTest {
 
 		FeatureBranch testCompare = featureBranchRepository.findById(featureBranchOne.getId());
 
-		assertEquals("FeatureBranch findById() not functioning as expected",
+		assertEquals("FeatureBranchRepository's findById() not functioning as expected",
 			testCompare.getCommitIdFirstCommit(), featureBranchOne.getCommitIdFirstCommit());
 	}
 
@@ -104,6 +120,22 @@ public class FeatureBranchRepositoryTests extends FongoBaseRepositoryTest {
 			testCompare.getCommitIdThatTriggeredBuild(), commitIdThatTriggeredBuild);		
 	}
 
+	@Test
+	public void testFindByNull()
+	{
+		featureBranchRepository.save(featureBranchOne);
+		featureBranchRepository.save(featureBranchFour);
+
+		assertEquals("FeatureBranchRepository's findByNull() not functioning as expected",
+			featureBranchRepository.findByNull().size(),1);
+
+		featureBranchFour.setCommitIdFirstCommit("G004-G04");
+		featureBranchFour.setFirstCommitTimeStamp(1499753944L);
+		featureBranchRepository.save(featureBranchFour);
+
+		assertEquals("FeatureBranchRepository's findByNull() not functioning as expected",
+			featureBranchRepository.findByNull().size(),0);
+	}	
 
 	/*
 		For tests, FeatureBranch objects are created in a manner such that
@@ -221,5 +253,5 @@ public class FeatureBranchRepositoryTests extends FongoBaseRepositoryTest {
 		assertEquals("FeatureBranch => findByTimeFrame() not functioning as required ",
 			featureBranch_list.get(0).getId(),featureBranchTwo.getId());
 	}
-	
+
 }
