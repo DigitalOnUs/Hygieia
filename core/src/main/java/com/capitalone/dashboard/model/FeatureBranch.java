@@ -8,7 +8,7 @@ public class FeatureBranch extends BaseModel {
     private long firstCommitTimeStamp;
     private long deployTimeStamp;
     private String commitIdFirstCommit;
-    private String commitIdThatTriggeredBuild;
+    private String commitIdThatTriggeredDeploy;
     private String gitRepoUrl;
     private String name;
 
@@ -43,14 +43,14 @@ public class FeatureBranch extends BaseModel {
         this.deployTimeStamp = deployTimeStamp;
     }
 
-    public String getCommitIdThatTriggeredBuild()
+    public String getCommitIdThatTriggeredDeploy()
     {
-        return commitIdThatTriggeredBuild;
+        return commitIdThatTriggeredDeploy;
     }
 
-    public void setCommitIdThatTriggeredBuild(String commitIdThatTriggeredBuild)
+    public void setCommitIdThatTriggeredDeploy(String commitIdThatTriggeredDeploy)
     {
-        this.commitIdThatTriggeredBuild = commitIdThatTriggeredBuild;
+        this.commitIdThatTriggeredDeploy = commitIdThatTriggeredDeploy;
     }
 
     public String getCommitIdFirstCommit()

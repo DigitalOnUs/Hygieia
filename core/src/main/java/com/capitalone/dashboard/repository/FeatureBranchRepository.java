@@ -33,7 +33,7 @@ public interface FeatureBranchRepository extends CrudRepository<FeatureBranch, O
     
     FeatureBranch findById(ObjectId id);
     FeatureBranch findByCommitIdFirstCommit(String commitIdFirstCommit);
-    FeatureBranch findByCommitIdThatTriggeredBuild(String commitIdThatTriggeredBuild);
+    FeatureBranch findByCommitIdThatTriggeredDeploy(String commitIdThatTriggeredDeploy);
 
     /*
         purpose : to find rows that have null values for commitIdFirstCommit property. 
