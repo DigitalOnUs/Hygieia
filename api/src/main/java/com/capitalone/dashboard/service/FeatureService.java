@@ -9,7 +9,7 @@ import java.util.Optional;
 
 import org.bson.types.ObjectId;
 
-public interface FeatureService {
+public interface FeatureService{
 
 	/**
 	 * Retrieves all stories for a given team and their current sprint

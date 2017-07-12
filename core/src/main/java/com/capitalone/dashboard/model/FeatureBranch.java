@@ -12,7 +12,6 @@ public class FeatureBranch extends BaseModel {
     private String gitRepoUrl;
     private String name;
 
-
     public void setName(String name)
     {
         this.name = name;
