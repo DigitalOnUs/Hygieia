@@ -2,7 +2,7 @@ package com.capitalone.dashboard.model;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection="feauture_branch")
+@Document(collection="feature_branch")
 public class FeatureBranch extends BaseModel {
     
     private long firstCommitTimeStamp;

@@ -41,6 +41,7 @@ import com.capitalone.dashboard.service.UserInfoService;
 import com.capitalone.dashboard.service.UserInfoServiceImpl;
 import com.capitalone.dashboard.util.PaginationHeaderUtility;
 
+
  @SpringBootApplication
  @ComponentScan(basePackages = {"com.capitalone.dashboard.auth"})
  public class TestDefaultAuthConfig {
