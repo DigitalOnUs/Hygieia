@@ -1,18 +1,14 @@
 package com.capitalone.dashboard.repository;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-import java.lang.Iterable;
+import com.capitalone.dashboard.model.FeatureBranch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.capitalone.dashboard.model.DataResponse;
 
-import com.capitalone.dashboard.model.FeatureBranch;
-import com.capitalone.dashboard.repository.FeatureBranchRepository;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class FeatureBranchRepositoryTests extends FongoBaseRepositoryTest {
 
