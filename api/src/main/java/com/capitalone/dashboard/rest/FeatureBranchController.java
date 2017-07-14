@@ -23,7 +23,7 @@ public class FeatureBranchController {
         this.featureBranchService = featureBranchService;
     }
 
-    @RequestMapping(value = "/featurebranch/{timestamp1}/{timestamp2}", method = GET, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/featurebranchbytimeframe/{timestamp1}/{timestamp2}", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<List<FeatureBranch>> getFeatureBranchesWithinTimeFrame(
         @PathVariable Long timestamp1, @PathVariable Long timestamp2) {
         return ResponseEntity
@@ -31,7 +31,7 @@ public class FeatureBranchController {
                 .body(featureBranchService.getFeatureBranchByTimeFrame(timestamp1, timestamp2));
     }
 
-    @RequestMapping(value = "/featurebranch/firstcommit/{timestamp1}/{timestamp2}", method = GET, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/featurebranchbytimeframe/firstcommit/{timestamp1}/{timestamp2}", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<List<FeatureBranch>> getFeatureBranchesWithinFirstCommitTimeFrame(
         @PathVariable Long timestamp1, @PathVariable Long timestamp2) {
         return ResponseEntity
@@ -39,7 +39,7 @@ public class FeatureBranchController {
                 .body(featureBranchService.getFeatureBranchByFirstCommitTimeFrame(timestamp1, timestamp2));
     }
 
-    @RequestMapping(value = "/featurebranch/deploy/{timestamp1}/{timestamp2}", method = GET, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/featurebranchbytimeframe/deploy/{timestamp1}/{timestamp2}", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<List<FeatureBranch>> getFeatureBranchesWithinDeployTimeFrame(
         @PathVariable Long timestamp1, @PathVariable Long timestamp2) {
         return ResponseEntity

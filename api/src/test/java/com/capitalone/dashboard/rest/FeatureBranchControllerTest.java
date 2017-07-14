@@ -93,7 +93,7 @@ public class FeatureBranchControllerTest {
             featureBranchOne.getFirstCommitTimeStamp(), featureBranchTwo.getDeployTimeStamp()))
         .thenReturn(featureBranchList);
         
-        mockMvc.perform(get("/featurebranch/" 
+        mockMvc.perform(get("/featurebranchbytimeframe/" 
             +featureBranchOne.getFirstCommitTimeStamp() + "/" +
             featureBranchTwo.getDeployTimeStamp()))
                 .andExpect(status().isOk())
@@ -115,7 +115,7 @@ public class FeatureBranchControllerTest {
             featureBranchOne.getFirstCommitTimeStamp(), featureBranchTwo.getDeployTimeStamp()))
         .thenReturn(featureBranchList);
         
-        mockMvc.perform(get("/featurebranch/firstcommit/" 
+        mockMvc.perform(get("/featurebranchbytimeframe/firstcommit/" 
             +featureBranchOne.getFirstCommitTimeStamp() + "/" +
             featureBranchTwo.getDeployTimeStamp()))
                 .andExpect(status().isOk())
@@ -137,7 +137,7 @@ public class FeatureBranchControllerTest {
             featureBranchOne.getFirstCommitTimeStamp(), featureBranchTwo.getDeployTimeStamp()))
         .thenReturn(featureBranchList);
         
-        mockMvc.perform(get("/featurebranch/deploy/" 
+        mockMvc.perform(get("/featurebranchbytimeframe/deploy/" 
             +featureBranchOne.getFirstCommitTimeStamp() + "/" +
             featureBranchTwo.getDeployTimeStamp()))
                 .andExpect(status().isOk())
