@@ -7,7 +7,7 @@ import com.capitalone.dashboard.model.FeatureBranch;
 import com.capitalone.dashboard.repository.FeatureBranchRepository;
 
 import java.util.List;
-// import java.util.ArrayList;
+import java.util.ArrayList;
 
 
 @Service
@@ -45,16 +45,16 @@ public class FeatureBranchServiceImpl implements FeatureBranchService{
     }
 
     @Override
-    public Iterable<FeatureBranch> findAll(){
+    public List<FeatureBranch> findAll(){
 
-        // List<FeatureBranch> featureBranchList = new ArrayList();
+        List<FeatureBranch> featureBranchList = new ArrayList();
 
         Iterable<FeatureBranch> featureBranchIterable = featureBranchRepository.findAll();
-        // for ( FeatureBranch featureBranchObject : featureBranchIterable )
-        // {
-        //     featureBranchList.add(featureBranchObject);
-        // }
-        return featureBranchIterable;
+        for ( FeatureBranch featureBranchObject : featureBranchIterable )
+        {
+            featureBranchList.add(featureBranchObject);
+        }
+        return featureBranchList;
     }
 
 }
