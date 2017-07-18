@@ -1,15 +1,17 @@
 package com.capitalone.dashboard.rest;
 
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.capitalone.dashboard.service.FeatureBranchService;
 import com.capitalone.dashboard.model.FeatureBranch;
 
 import java.util.List;
+import java.util.ArrayList;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
@@ -23,28 +25,35 @@ public class FeatureBranchController {
         this.featureBranchService = featureBranchService;
     }
 
-    @RequestMapping(value = "/featurebranchbytimeframe/{timestamp1}/{timestamp2}", method = GET, produces = APPLICATION_JSON_VALUE)
+
+    @RequestMapping(value = "/feature_branches", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<List<FeatureBranch>> getFeatureBranchesWithinTimeFrame(
-        @PathVariable Long timestamp1, @PathVariable Long timestamp2) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(featureBranchService.getFeatureBranchByTimeFrame(timestamp1, timestamp2));
-    }
+        @RequestParam("filter") String filter, @RequestParam("start_time") Long startTime, 
+        @RequestParam("end_time") Long endTime) {
 
-    @RequestMapping(value = "/featurebranchbytimeframe/firstcommit/{timestamp1}/{timestamp2}", method = GET, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<FeatureBranch>> getFeatureBranchesWithinFirstCommitTimeFrame(
-        @PathVariable Long timestamp1, @PathVariable Long timestamp2) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(featureBranchService.getFeatureBranchByFirstCommitTimeFrame(timestamp1, timestamp2));
-    }
+        List<FeatureBranch> featureBranchList;
 
-    @RequestMapping(value = "/featurebranchbytimeframe/deploy/{timestamp1}/{timestamp2}", method = GET, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<FeatureBranch>> getFeatureBranchesWithinDeployTimeFrame(
-        @PathVariable Long timestamp1, @PathVariable Long timestamp2) {
+        switch(filter)
+        {
+            case "first_commit":
+                featureBranchList = featureBranchService.getFeatureBranchByFirstCommitTimeFrame(startTime, endTime);
+                break;
+
+            case "deploy" :
+                featureBranchList = featureBranchService.getFeatureBranchByDeployTimeFrame(startTime, endTime);
+                break;
+
+            case "none" :
+                featureBranchList = featureBranchService.getFeatureBranchByTimeFrame(startTime, endTime);
+                break;
+
+            default :
+                featureBranchList = new ArrayList();
+                break;
+        }
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(featureBranchService.getFeatureBranchByDeployTimeFrame(timestamp1, timestamp2));
+                .body(featureBranchList);
     }
 }
 

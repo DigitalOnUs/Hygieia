@@ -41,7 +41,6 @@ public class FeatureBranchControllerTest {
 
     private static FeatureBranch featureBranchOne;
     private static FeatureBranch featureBranchTwo;
-
     
     private MockMvc mockMvc;
 
@@ -70,7 +69,9 @@ public class FeatureBranchControllerTest {
         featureBranchTwo.setGitRepoUrl("api.github.com/repo/commits/G002-G022");
         featureBranchTwo.setFirstCommitTimeStamp(1499353944L);      // 2017/07/06 :: 15:12:24
         featureBranchTwo.setDeployTimeStamp(1499453944L);           //2017/07/07 :: 18:59:04
-        
+
+        featureBranchService.save(featureBranchOne);
+        featureBranchService.save(featureBranchTwo);
     }
 
     @After
@@ -83,8 +84,6 @@ public class FeatureBranchControllerTest {
     @Test
     public void testGetFeatureBranchWithinTimeFrame() throws Exception {
 
-        featureBranchService.save(featureBranchOne);
-        featureBranchService.save(featureBranchTwo);
         List<FeatureBranch> featureBranchList = new ArrayList();
         featureBranchList.add(featureBranchOne);
         featureBranchList.add(featureBranchTwo);
@@ -93,8 +92,8 @@ public class FeatureBranchControllerTest {
             featureBranchOne.getFirstCommitTimeStamp(), featureBranchTwo.getDeployTimeStamp()))
         .thenReturn(featureBranchList);
         
-        mockMvc.perform(get("/featurebranchbytimeframe/" 
-            +featureBranchOne.getFirstCommitTimeStamp() + "/" +
+        mockMvc.perform(get("/feature_branches?filter=none&start_time=" 
+            +featureBranchOne.getFirstCommitTimeStamp() + "&end_time=" +
             featureBranchTwo.getDeployTimeStamp()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -105,8 +104,6 @@ public class FeatureBranchControllerTest {
     @Test
     public void testGetFeatureBranchWithinFirstCommitTimeFrame() throws Exception {
 
-        featureBranchService.save(featureBranchOne);
-        featureBranchService.save(featureBranchTwo);
         List<FeatureBranch> featureBranchList = new ArrayList();
         featureBranchList.add(featureBranchOne);
         featureBranchList.add(featureBranchTwo);
@@ -115,8 +112,8 @@ public class FeatureBranchControllerTest {
             featureBranchOne.getFirstCommitTimeStamp(), featureBranchTwo.getDeployTimeStamp()))
         .thenReturn(featureBranchList);
         
-        mockMvc.perform(get("/featurebranchbytimeframe/firstcommit/" 
-            +featureBranchOne.getFirstCommitTimeStamp() + "/" +
+        mockMvc.perform(get("/feature_branches?filter=first_commit&start_time=" 
+            +featureBranchOne.getFirstCommitTimeStamp() + "&end_time=" +
             featureBranchTwo.getDeployTimeStamp()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -127,8 +124,6 @@ public class FeatureBranchControllerTest {
     @Test
     public void testGetFeatureBranchWithinDeployTimeFrame() throws Exception {
 
-        featureBranchService.save(featureBranchOne);
-        featureBranchService.save(featureBranchTwo);
         List<FeatureBranch> featureBranchList = new ArrayList();
         featureBranchList.add(featureBranchOne);
         featureBranchList.add(featureBranchTwo);
@@ -137,8 +132,8 @@ public class FeatureBranchControllerTest {
             featureBranchOne.getFirstCommitTimeStamp(), featureBranchTwo.getDeployTimeStamp()))
         .thenReturn(featureBranchList);
         
-        mockMvc.perform(get("/featurebranchbytimeframe/deploy/" 
-            +featureBranchOne.getFirstCommitTimeStamp() + "/" +
+        mockMvc.perform(get("/feature_branches?filter=deploy&start_time=" 
+            +featureBranchOne.getFirstCommitTimeStamp() + "&end_time=" +
             featureBranchTwo.getDeployTimeStamp()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
