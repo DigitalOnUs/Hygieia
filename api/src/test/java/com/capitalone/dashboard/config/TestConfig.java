@@ -17,6 +17,7 @@ import com.capitalone.dashboard.service.DashboardService;
 import com.capitalone.dashboard.service.DeployService;
 import com.capitalone.dashboard.service.EncryptionService;
 import com.capitalone.dashboard.service.FeatureBranchService;
+import com.capitalone.dashboard.repository.FeatureBranchRepository;
 import com.capitalone.dashboard.service.FeatureService;
 import com.capitalone.dashboard.service.GitRequestService;
 import com.capitalone.dashboard.service.LibraryPolicyService;
@@ -197,4 +198,9 @@ public class TestConfig {
         return Mockito.mock(FeatureBranchService.class);
     }
 
+    @Bean
+    public FeatureBranchRepository featureBranchRepository()
+    {
+        return Mockito.mock(FeatureBranchRepository.class);
+    }
 }

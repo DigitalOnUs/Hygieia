@@ -61,10 +61,9 @@ public class FeatureBranchServiceImplTest {
         featureBranchThree.setFirstCommitTimeStamp(1499553944L);    // 2017/07/08 22:45:54
         featureBranchThree.setDeployTimeStamp(1499653944L);         //2017/07/10 02:32:24   
 
-        featureBranchService.save(featureBranchOne);
-        featureBranchService.save(featureBranchTwo);
-        featureBranchService.save(featureBranchThree);
-
+        featureBranchRepository.save(featureBranchOne);
+        featureBranchRepository.save(featureBranchTwo);
+        featureBranchRepository.save(featureBranchThree);
     }
 
     @After
@@ -85,18 +84,6 @@ public class FeatureBranchServiceImplTest {
         featureBranchList.add(featureBranchThree);
 
         return featureBranchList;
-    }
-
-    @Test
-    public void validateSave() {
-
-        List<FeatureBranch> featureBranchList = getFeatureBranchList();
-
-        when(featureBranchRepository.findAll()).thenReturn(featureBranchList);
-
-        assertEquals("Save function validation for the FeatureBranchRepository has failed",
-                featureBranchService.findAll().size(),3);
-        verify(featureBranchRepository).findAll();
     }
 
     @Test 

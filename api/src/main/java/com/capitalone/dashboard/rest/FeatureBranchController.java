@@ -25,16 +25,16 @@ public class FeatureBranchController {
         this.featureBranchService = featureBranchService;
     }
 
-
     @RequestMapping(value = "/feature_branches", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<List<FeatureBranch>> getFeatureBranchesWithinTimeFrame(
         @RequestParam("filter") String filter, @RequestParam("start_time") Long startTime, 
         @RequestParam("end_time") Long endTime) {
 
         List<FeatureBranch> featureBranchList;
+        HttpStatus httpStatus = HttpStatus.OK;
+        
+        switch(filter){
 
-        switch(filter)
-        {
             case "first_commit":
                 featureBranchList = featureBranchService.getFeatureBranchByFirstCommitTimeFrame(startTime, endTime);
                 break;
@@ -48,11 +48,13 @@ public class FeatureBranchController {
                 break;
 
             default :
+                httpStatus = HttpStatus.BAD_REQUEST;
                 featureBranchList = new ArrayList();
                 break;
         }
+ 
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(httpStatus)
                 .body(featureBranchList);
     }
 }

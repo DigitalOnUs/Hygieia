@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import java.util.ArrayList;
 
-
 import org.bson.types.ObjectId;
 import org.junit.After;
 import org.junit.Before;
@@ -33,6 +32,7 @@ import com.capitalone.dashboard.model.Component;
 import com.capitalone.dashboard.model.DataResponse;
 import com.capitalone.dashboard.model.FeatureBranch;
 import com.capitalone.dashboard.service.FeatureBranchService;
+import com.capitalone.dashboard.repository.FeatureBranchRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class, WebMVCConfig.class })
@@ -46,6 +46,9 @@ public class FeatureBranchControllerTest {
 
     @Autowired
     private WebApplicationContext wac;
+
+    @Autowired
+    private FeatureBranchRepository featureBranchRepository;
     
     @Autowired
     private FeatureBranchService featureBranchService;
@@ -70,8 +73,8 @@ public class FeatureBranchControllerTest {
         featureBranchTwo.setFirstCommitTimeStamp(1499353944L);      // 2017/07/06 :: 15:12:24
         featureBranchTwo.setDeployTimeStamp(1499453944L);           //2017/07/07 :: 18:59:04
 
-        featureBranchService.save(featureBranchOne);
-        featureBranchService.save(featureBranchTwo);
+        featureBranchRepository.save(featureBranchOne);
+        featureBranchRepository.save(featureBranchTwo);
     }
 
     @After
@@ -81,13 +84,17 @@ public class FeatureBranchControllerTest {
        mockMvc = null;
     }
 
-    @Test
-    public void testGetFeatureBranchWithinTimeFrame() throws Exception {
-
+    private List<FeatureBranch> getFeatureBranchList() {
         List<FeatureBranch> featureBranchList = new ArrayList();
         featureBranchList.add(featureBranchOne);
         featureBranchList.add(featureBranchTwo);
+        return featureBranchList;
+    }
 
+    @Test
+    public void testGetFeatureBranchWithinTimeFrame() throws Exception {
+
+        List<FeatureBranch> featureBranchList = getFeatureBranchList();
         when(featureBranchService.getFeatureBranchByTimeFrame(
             featureBranchOne.getFirstCommitTimeStamp(), featureBranchTwo.getDeployTimeStamp()))
         .thenReturn(featureBranchList);
@@ -104,10 +111,7 @@ public class FeatureBranchControllerTest {
     @Test
     public void testGetFeatureBranchWithinFirstCommitTimeFrame() throws Exception {
 
-        List<FeatureBranch> featureBranchList = new ArrayList();
-        featureBranchList.add(featureBranchOne);
-        featureBranchList.add(featureBranchTwo);
-
+        List<FeatureBranch> featureBranchList = getFeatureBranchList();
         when(featureBranchService.getFeatureBranchByFirstCommitTimeFrame(
             featureBranchOne.getFirstCommitTimeStamp(), featureBranchTwo.getDeployTimeStamp()))
         .thenReturn(featureBranchList);
@@ -124,10 +128,7 @@ public class FeatureBranchControllerTest {
     @Test
     public void testGetFeatureBranchWithinDeployTimeFrame() throws Exception {
 
-        List<FeatureBranch> featureBranchList = new ArrayList();
-        featureBranchList.add(featureBranchOne);
-        featureBranchList.add(featureBranchTwo);
-
+        List<FeatureBranch> featureBranchList = getFeatureBranchList();
         when(featureBranchService.getFeatureBranchByDeployTimeFrame(
             featureBranchOne.getFirstCommitTimeStamp(), featureBranchTwo.getDeployTimeStamp()))
         .thenReturn(featureBranchList);
@@ -139,5 +140,19 @@ public class FeatureBranchControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].commitIdThatTriggeredDeploy", is(featureBranchOne.getCommitIdThatTriggeredDeploy())))
                 .andExpect(jsonPath("$[1].commitIdThatTriggeredDeploy", is(featureBranchTwo.getCommitIdThatTriggeredDeploy())));
+    }
+
+    @Test
+    public void testGetFeatureBranchBadRequest() throws Exception {
+
+        List<FeatureBranch> featureBranchList = getFeatureBranchList();
+        when(featureBranchService.getFeatureBranchByTimeFrame(
+            featureBranchOne.getFirstCommitTimeStamp(), featureBranchTwo.getDeployTimeStamp()))
+        .thenReturn(featureBranchList);
+        
+        mockMvc.perform(get("/feature_branches?filter=invalid_input&start_time=" 
+            +featureBranchOne.getFirstCommitTimeStamp() + "&end_time=" +
+            featureBranchTwo.getDeployTimeStamp()))
+                .andExpect(status().isBadRequest());     
     }
 }

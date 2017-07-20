@@ -10,8 +10,4 @@ public interface FeatureBranchService {
     List<FeatureBranch> getFeatureBranchByFirstCommitTimeFrame(long timestamp1, long timestamp2);
     
     List<FeatureBranch> getFeatureBranchByDeployTimeFrame(long timestamp1, long timestamp2);
-    
-    void save(FeatureBranch featureBranch);
-
-    Iterable<FeatureBranch> findAll();
 }
