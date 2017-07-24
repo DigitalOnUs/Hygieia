@@ -1,17 +1,16 @@
 package com.capitalone.dashboard.repository;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import com.capitalone.dashboard.model.FeatureBranch;
 
-import java.util.List;
-import java.lang.Iterable;
+import com.google.common.collect.Iterables;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
 
-import com.capitalone.dashboard.model.FeatureBranch;
-import com.capitalone.dashboard.repository.FeatureBranchRepository;
+import static org.junit.Assert.assertEquals;
 
 public class FeatureBranchRepositoryTests extends FongoBaseRepositoryTest {
 
@@ -72,15 +71,8 @@ public class FeatureBranchRepositoryTests extends FongoBaseRepositoryTest {
 		featureBranchRepository.save(featureBranchTwo);
 		featureBranchRepository.save(featureBranchThree);
 
-		Iterable<FeatureBranch> featureBranchIterable = featureBranchRepository.findAll();
-		int size = 0;
-		for ( FeatureBranch featureBranchObject : featureBranchIterable )
-		{
-			size++; 
-		}
-
 		assertEquals("Save function validation for the FeatureBranchRepository has failed",
-				size,3);
+		Iterables.size(featureBranchRepository.findAll()),3);
 	}
 
 
