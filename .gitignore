@@ -46,3 +46,4 @@ application.properties
 
 UI/package-lock.json
 api/dashboard.properties
+collectors/build/jenkins/application.properties

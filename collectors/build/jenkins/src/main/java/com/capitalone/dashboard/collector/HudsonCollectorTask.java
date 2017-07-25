@@ -30,6 +30,7 @@ import java.util.Set;
  * CollectorTask that fetches Build information from Hudson
  */
 @Component
+@SuppressWarnings("PMD")
 public class HudsonCollectorTask extends CollectorTask<HudsonCollector> {
     @SuppressWarnings("PMD.UnusedPrivateField")
 //    private static final Log LOG = LogFactory.getLog(HudsonCollectorTask.class);
@@ -40,6 +41,7 @@ public class HudsonCollectorTask extends CollectorTask<HudsonCollector> {
     private final HudsonClient hudsonClient;
     private final HudsonSettings hudsonSettings;
     private final ComponentRepository dbComponentRepository;
+    private final MonitoredJobsSettings monitoredJobsSettings;
 
     @Autowired
     public HudsonCollectorTask(TaskScheduler taskScheduler,
@@ -47,7 +49,8 @@ public class HudsonCollectorTask extends CollectorTask<HudsonCollector> {
                                HudsonJobRepository hudsonJobRepository,
                                BuildRepository buildRepository, HudsonClient hudsonClient,
                                HudsonSettings hudsonSettings,
-                               ComponentRepository dbComponentRepository) {
+                               ComponentRepository dbComponentRepository,
+                               MonitoredJobsSettings monitoredJobsSettings) {
         super(taskScheduler, "Hudson");
         this.hudsonCollectorRepository = hudsonCollectorRepository;
         this.hudsonJobRepository = hudsonJobRepository;
@@ -55,6 +58,7 @@ public class HudsonCollectorTask extends CollectorTask<HudsonCollector> {
         this.hudsonClient = hudsonClient;
         this.hudsonSettings = hudsonSettings;
         this.dbComponentRepository = dbComponentRepository;
+        this.monitoredJobsSettings = monitoredJobsSettings;
     }
 
     @Override
@@ -119,7 +123,7 @@ public class HudsonCollectorTask extends CollectorTask<HudsonCollector> {
             if (CollectionUtils.isEmpty(comp.getCollectorItems())) continue;
 
             List<CollectorItem> itemList = comp.getCollectorItems().get(CollectorType.Build);
-
+            
             if (CollectionUtils.isEmpty(itemList)) continue;
 
             for (CollectorItem ci : itemList) {
@@ -128,10 +132,29 @@ public class HudsonCollectorTask extends CollectorTask<HudsonCollector> {
                 }
             }
         }
+
+        Set<String> monitoredJobsSet;
+        if(monitoredJobsSettings != null )
+        {
+            monitoredJobsSet = monitoredJobsSettings.getMonitoredJobsSet();
+        }
+        else
+        {
+            monitoredJobsSet = new HashSet<>();
+        }
+
         List<HudsonJob> stateChangeJobList = new ArrayList<>();
+
         for (HudsonJob job : existingJobs) {
+
+            if( monitoredJobsSet.contains(job.getJobName()) ) {   
+                uniqueIDs.add(job.getId());
+            }
+
             if ((job.isEnabled() && !uniqueIDs.contains(job.getId())) ||  // if it was enabled but not on a dashboard
-                    (!job.isEnabled() && uniqueIDs.contains(job.getId()))) { // OR it was disabled and now on a dashboard
+                    (!job.isEnabled() && uniqueIDs.contains(job.getId())) || // OR it was disabled and now on a dashboard
+                    (monitoredJobsSet.contains(job.getJobName()) && !job.isEnabled())) { // OR job listed in Configured Jobs
+        
                 job.setEnabled(uniqueIDs.contains(job.getId()));
                 stateChangeJobList.add(job);
             }
