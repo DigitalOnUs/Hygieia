@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Bean to hold settings specific to the Hudson collector.
@@ -24,6 +25,9 @@ public class HudsonSettings {
     private int pageSize;
     @Value("${folderDepth:10}")
     private int folderDepth;
+
+    @Value("#{'${jenkins.monitoredJobs}'.split(',')}")
+    private Set<String> monitoredJobsSet;
 
     public String getCron() {
         return cron;
@@ -104,5 +108,9 @@ public class HudsonSettings {
 
     public int getFolderDepth() {
         return folderDepth;
+    }
+
+    public Set getMonitoredJobsSet() {
+        return this.monitoredJobsSet;
     }
 }
