@@ -134,7 +134,6 @@ public class HudsonCollectorTask extends CollectorTask<HudsonCollector> {
 
         Set<String> monitoredJobsSet = hudsonSettings.getMonitoredJobsSet();      
         List<HudsonJob> stateChangeJobList = new ArrayList<>();
-        boolean monitoredJobFlag;
         
         for (HudsonJob job : existingJobs) {
             if( monitoredJobsSet.contains(job.getJobName()) ) {   
