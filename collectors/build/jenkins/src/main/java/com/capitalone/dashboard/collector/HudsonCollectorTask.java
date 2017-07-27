@@ -114,6 +114,7 @@ public class HudsonCollectorTask extends CollectorTask<HudsonCollector> {
     @SuppressWarnings("PMD")
     private void clean(HudsonCollector collector, List<HudsonJob> existingJobs) {
         Set<ObjectId> uniqueIDs = new HashSet<>();
+
         for (com.capitalone.dashboard.model.Component comp : dbComponentRepository
                 .findAll()) {
 
@@ -124,6 +125,7 @@ public class HudsonCollectorTask extends CollectorTask<HudsonCollector> {
             if (CollectionUtils.isEmpty(itemList)) continue;
 
             for (CollectorItem ci : itemList) {
+
                 if (collector.getId().equals(ci.getCollectorId())) {
                     uniqueIDs.add(ci.getId());
                 }
@@ -135,16 +137,11 @@ public class HudsonCollectorTask extends CollectorTask<HudsonCollector> {
         boolean monitoredJobFlag;
         
         for (HudsonJob job : existingJobs) {
-            monitoredJobFlag = false;
             if( monitoredJobsSet.contains(job.getJobName()) ) {   
                 uniqueIDs.add(job.getId());
-                monitoredJobFlag = true;
             }
-
             if ((job.isEnabled() && !uniqueIDs.contains(job.getId())) ||  // if it was enabled but not on a dashboard
-                    (!job.isEnabled() && uniqueIDs.contains(job.getId())) || // OR it was disabled and now on a dashboard
-                    (monitoredJobFlag && !job.isEnabled())) { // OR job listed in Configured Jobs
-        
+                    (!job.isEnabled() && uniqueIDs.contains(job.getId())) ){ // OR it was disabled and now on a dashboard
                 job.setEnabled(uniqueIDs.contains(job.getId()));
                 stateChangeJobList.add(job);
             }
