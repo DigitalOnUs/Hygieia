@@ -1,6 +1,7 @@
 package com.capitalone.dashboard.collector;
 
 import com.capitalone.dashboard.model.Build;
+import com.capitalone.dashboard.model.FeatureBranch;
 import com.capitalone.dashboard.model.BuildStatus;
 import com.capitalone.dashboard.model.HudsonJob;
 import com.capitalone.dashboard.model.RepoBranch;
@@ -87,7 +88,24 @@ public class DefaultHudsonClient implements HudsonClient {
             "actions[lastBuiltRevision[SHA1,branch[SHA1,name]],remoteUrls]"
     };
 
+    private static final String[] FEATUREBRANCH_DETAILS_TREE = new String[]{
+            "number",
+            "url",
+            "timestamp",
+            "duration",
+            "building",
+            "result",
+            "culprits[fullName]",
+            "changeSets[items[" + StringUtils.join(CHANGE_SET_ITEMS_TREE, ",") + "],kind]",
+            "changeSet[items[" + StringUtils.join(CHANGE_SET_ITEMS_TREE, ",") + "]",
+            "kind",
+            "revisions[module,revision]]",
+            "actions[lastBuiltRevision[SHA1,branch[SHA1,name]],remoteUrls,causes[upstreamBuild,upstreamUrl,upstreamProject]]"
+    };
+
     private static final String BUILD_DETAILS_URL_SUFFIX = "/api/json?tree=" + StringUtils.join(BUILD_DETAILS_TREE, ",");
+    private static final String FEATUREBRANCH_DETAILS_URL_SUFFIX = "/api/json?tree=" +
+        StringUtils.join(FEATUREBRANCH_DETAILS_TREE, ",");
 
     @Autowired
     public DefaultHudsonClient(Supplier<RestOperations> restOperationsSupplier, HudsonSettings settings) {
@@ -292,7 +310,6 @@ public class DefaultHudsonClient implements HudsonClient {
                     build.getCodeRepos().addAll(getGitRepoBranch(buildJson));
                     
                     boolean isPipelineJob = "org.jenkinsci.plugins.workflow.job.WorkflowRun".equals(getString(buildJson, "_class"));
-                    
                     // Need to handle duplicate changesets bug in Pipeline jobs (https://issues.jenkins-ci.org/browse/JENKINS-40352)
                     Set<String> commitIds = new HashSet<>();
                     // This is empty for git
@@ -327,6 +344,230 @@ public class DefaultHudsonClient implements HudsonClient {
             LOG.error("Unsupported Encoding Exception in getting build details. URL=" + buildUrl, unse);
         }
         return null;
+    }
+
+    private String getBranchName(JSONObject buildJson, HudsonSettings hudsonSettings) {
+        try {
+            String sha = null;
+            JSONArray actions = getJsonArray(buildJson, "actions");
+            for (Object action : actions) {
+                JSONObject jsonAction = (JSONObject) action;
+                if (jsonAction.size() > 0) {
+                    JSONObject lastBuiltRevision = null;
+                    JSONArray remoteUrls = getJsonArray ((JSONObject) action, "remoteUrls");       
+                    if (!remoteUrls.isEmpty()) {
+                        lastBuiltRevision = (JSONObject) jsonAction.get("lastBuiltRevision");
+                        sha = lastBuiltRevision.get("SHA1").toString();
+                        break;
+                    }
+                }
+            }
+
+            String url = "https://api.github.com/repos/"+hudsonSettings.getGitOwner() +
+            "/" + hudsonSettings.getGitRepo() + "/commits/"+sha;
+
+            ResponseEntity<String> result = rest.exchange(url, HttpMethod.GET, null,
+                        String.class);
+
+            String resultJSON = result.getBody();
+            if (StringUtils.isEmpty(resultJSON)) {
+                LOG.error("Error getting build details for. URL=" + url);
+                return null;
+            }
+            JSONParser parser = new JSONParser();
+            try {
+                JSONObject allJson = (JSONObject) parser.parse(resultJSON);
+                JSONObject commitJson = (JSONObject) allJson.get("commit");
+                String[] msg = commitJson.get("message").toString().split("\n");
+
+                return msg[msg.length-1];
+            
+            }catch(ParseException e) {
+                LOG.error("Parsing build: " + url, e);
+            }
+            return null;
+        } catch (RestClientException rce) {
+            LOG.error("Client exception loading branch details: " + rce.getMessage());
+        } catch (Exception e) {
+            LOG.error("Exception in DefaultHudsonClient getBranchName()." + e);
+        }
+        return null;
+    }
+
+    @Override
+    public FeatureBranch getFeatureBranchDetails(String gitEnabledJob, HudsonSettings hudsonSettings,
+        String buildUrl, String instanceUrl) {
+        try {
+            JSONObject buildJson = getDetailsFromJenkins(buildUrl, instanceUrl);
+            
+            if(buildJson ==null)
+                return null;
+
+            FeatureBranch featureBranch = new FeatureBranch();
+            featureBranch.setDeployTimeStamp((Long) buildJson.get("timestamp"));
+            String parentJob = "";
+            // backtrack pipeline jobs
+            while(!parentJob.equals(gitEnabledJob)) {
+                JSONObject upstreamObject = getUpstreamObject(buildJson);
+                
+                if(upstreamObject != null) {
+                    String upstreamUrl = upstreamObject.get("upstreamUrl").toString() +
+                        upstreamObject.get("upstreamBuild").toString();     
+                    parentJob = upstreamObject.get("upstreamProject").toString();
+                    buildJson = getDetailsFromJenkins(instanceUrl+upstreamUrl,instanceUrl);
+                }
+                else {
+                    return null;
+                }
+            }
+
+            featureBranch.setName( getBranchName(buildJson, hudsonSettings));
+
+
+            List<RepoBranch> repoBranchList = new ArrayList<>();
+            repoBranchList.addAll(getGitRepoBranch(buildJson));
+            
+            boolean isPipelineJob = "org.jenkinsci.plugins.workflow.job.WorkflowRun".equals(getString(buildJson, "_class"));
+            Set<String> commitIds = new HashSet<>();
+            Set<String> revisions = new HashSet<>();
+            
+            List<SCM> scmList = new ArrayList<>();
+            if (isPipelineJob) {
+                for (Object changeSetObj : getJsonArray(buildJson, "changeSets")) {
+                    JSONObject changeSet = (JSONObject) changeSetObj;
+                    scmList = addFeatureChangeSet(repoBranchList, changeSet, commitIds, revisions);
+                }
+            } else {
+                JSONObject changeSet = (JSONObject) buildJson.get("changeSet");
+                if (changeSet != null) {
+                    scmList = addFeatureChangeSet(repoBranchList, changeSet, commitIds, revisions);
+                }
+            }
+            return buildFeatureBranchObject(featureBranch, scmList, repoBranchList);
+        } catch(Exception e) {
+            LOG.error("Exception in getFeatureBranchDetails() ", e);
+        }
+        return null;     
+    }     
+
+    private JSONObject getUpstreamObject(JSONObject buildJson) {
+        JSONArray actions = getJsonArray(buildJson, "actions");
+        for (Object action : actions) {
+            JSONObject jsonAction = (JSONObject) action;
+            if (jsonAction.size() > 0) {
+                JSONArray causes = getJsonArray ((JSONObject) action, "causes");
+                if( causes != null) {
+                   for(Object cause : causes) {
+                        JSONObject jsonCause = (JSONObject) cause;
+                        if( jsonCause != null ) {
+                            return jsonCause;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private JSONObject getDetailsFromJenkins(String buildUrl, String instanceUrl) {
+        try {
+            String newUrl = rebuildJobUrl(buildUrl, instanceUrl);
+            String url = joinURL(newUrl, FEATUREBRANCH_DETAILS_URL_SUFFIX);
+            ResponseEntity<String> result = makeRestCall(url);
+            String resultJSON = result.getBody();
+            if (StringUtils.isEmpty(resultJSON)) {
+                LOG.error("Error getting build details for. URL=" + url);
+                return null;
+            }
+            JSONParser parser = new JSONParser();
+            try {
+                JSONObject buildJson = (JSONObject) parser.parse(resultJSON);
+                Boolean building = (Boolean) buildJson.get("building");
+                // Ignore jobs that are building
+                if (!building) {
+                    return buildJson;
+                }
+            } catch (ParseException e) {
+                LOG.error("Parsing build: " + newUrl, e);
+            }
+        }catch (RestClientException rce) {
+            LOG.error("Client exception loading build details: " + rce.getMessage() + ". URL =" + buildUrl);
+        } catch (MalformedURLException mfe) {
+            LOG.error("Malformed url for loading build details" + mfe.getMessage() + ". URL =" + buildUrl);
+        } catch (URISyntaxException use) {
+            LOG.error("Uri syntax exception for loading build details" + use.getMessage() + ". URL =" + buildUrl);
+        } catch (RuntimeException re) {
+            LOG.error("Unknown error in getting build details. URL=" + buildUrl, re);
+        } catch (UnsupportedEncodingException unse) {
+            LOG.error("Unsupported Encoding Exception in getting build details. URL=" + buildUrl, unse);
+        }
+        return null;
+    }          
+
+    @SuppressWarnings("PMD")
+    private FeatureBranch buildFeatureBranchObject(FeatureBranch featureBranch,
+                                            List<SCM> scmList, List<RepoBranch> repoBranchList) {
+        Long minTimeStamp = Long.valueOf(System.currentTimeMillis());
+        String firstCommitID="";
+
+        if(scmList != null && !(scmList.isEmpty())) {
+            for(SCM scmObj : scmList) {
+                if(minTimeStamp > scmObj.getScmCommitTimestamp()) {
+                    minTimeStamp = scmObj.getScmCommitTimestamp();
+                    firstCommitID = scmObj.getScmRevisionNumber();
+                }
+            }
+        }
+        if(repoBranchList !=null && !(repoBranchList.isEmpty())) {
+                // featureBranch.setName(repoBranchList.get(0).getBranch());
+                featureBranch.setGitRepoUrl(repoBranchList.get(0).getUrl());
+        }
+        featureBranch.setCommitIdFirstCommit(firstCommitID);
+        featureBranch.setFirstCommitTimeStamp(minTimeStamp);
+
+        return featureBranch;
+    }
+
+
+    private List<SCM> addFeatureChangeSet(List<RepoBranch> repoBranchList,
+        JSONObject changeSet, Set<String> commitIds, Set<String> revisions) {
+        List<SCM> scmList = new ArrayList<>();
+
+        String scmType = getString(changeSet, "kind");
+        Map<String, RepoBranch> revisionToUrl = new HashMap<>();
+
+        for (Object revision : getJsonArray(changeSet, "revisions")) {
+            JSONObject json = (JSONObject) revision;
+            String revisionId = json.get("revision").toString();
+            if (StringUtils.isNotEmpty(revisionId) && !revisions.contains(revisionId)) {
+                RepoBranch rb = new RepoBranch();
+                rb.setUrl(getString(json, "module"));
+                rb.setType(RepoBranch.RepoType.fromString(scmType));
+                revisionToUrl.put(revisionId, rb);
+                repoBranchList.add(rb);
+            }
+        }
+
+        for (Object item : getJsonArray(changeSet, "items")) {
+            JSONObject jsonItem = (JSONObject) item;
+            String commitId = getRevision(jsonItem);
+            if (StringUtils.isNotEmpty(commitId) && !commitIds.contains(commitId)) {
+                SCM scm = new SCM();
+                scm.setScmAuthor(getCommitAuthor(jsonItem));
+                scm.setScmCommitLog(getString(jsonItem, "msg"));
+                scm.setScmCommitTimestamp(getCommitTimestamp(jsonItem));
+                scm.setScmRevisionNumber(commitId);
+                RepoBranch repoBranch = revisionToUrl.get(scm.getScmRevisionNumber());
+                if (repoBranch != null) {
+                    scm.setScmUrl(repoBranch.getUrl());
+                    scm.setScmBranch(repoBranch.getBranch());
+                }
+                scm.setNumberOfChanges(getJsonArray(jsonItem, "paths").size());
+                scmList.add(scm);
+                commitIds.add(commitId);
+            }
+        }
+        return scmList;
     }
 
     //This method will rebuild the API endpoint because the buildUrl obtained via Jenkins API
@@ -402,7 +643,6 @@ public class DefaultHudsonClient implements HudsonClient {
      * We assume that all branches are in remotes/origin.
      */
 
-    @SuppressWarnings("PMD")
     private List<RepoBranch> getGitRepoBranch(JSONObject buildJson) {
         List<RepoBranch> list = new ArrayList<>();        
         
@@ -442,7 +682,7 @@ public class DefaultHudsonClient implements HudsonClient {
         }
         return list;
     }
-    
+
     private String removeGitExtensionFromUrl(String url) {
     	String sUrl = url;
     	//remove .git from the urls

@@ -8,6 +8,9 @@ import com.capitalone.dashboard.repository.BuildRepository;
 import com.capitalone.dashboard.repository.ComponentRepository;
 import com.capitalone.dashboard.repository.HudsonCollectorRepository;
 import com.capitalone.dashboard.repository.HudsonJobRepository;
+import com.capitalone.dashboard.repository.FeatureBranchRepository;
+import com.capitalone.dashboard.model.FeatureBranch;
+
 import com.google.common.collect.Sets;
 import org.bson.types.ObjectId;
 import org.junit.Test;
@@ -43,6 +46,7 @@ public class HudsonCollectorTaskTests {
     @Mock private HudsonClient hudsonClient;
     @Mock private HudsonSettings hudsonSettings;
     @Mock private ComponentRepository dbComponentRepository;
+    @Mock private FeatureBranchRepository featureBranchRepository;
 
     @InjectMocks private HudsonCollectorTask task;
 

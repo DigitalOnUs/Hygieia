@@ -29,6 +29,20 @@ public class HudsonSettings {
     @Value("#{'${jenkins.monitoredJobs}'.split(',')}")
     private Set<String> monitoredJobsSet;
 
+
+    @Value("${jenkins.deployJobName}")
+    private String deployJobName;
+
+    @Value("${jenkins.gitEnabledJobName}")
+    private String gitEnabledJobName;
+
+
+    @Value("${jenkins.gitOwner}")
+    private String gitOwner;
+
+    @Value("${jenkins.gitRepo}")
+    private String gitRepo;
+
     public String getCron() {
         return cron;
     }
@@ -113,4 +127,21 @@ public class HudsonSettings {
     public Set getMonitoredJobsSet() {
         return this.monitoredJobsSet;
     }
+
+    public String getGitEnabledJobName() {
+        return gitEnabledJobName;
+    }
+
+    public String getDeployJobName() {
+        return deployJobName;
+    }
+
+    public String getGitRepo() {
+        return gitRepo;
+    }
+
+    public String getGitOwner() {
+        return gitOwner;
+    }
+
 }

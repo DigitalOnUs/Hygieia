@@ -11,6 +11,9 @@ import com.capitalone.dashboard.repository.BuildRepository;
 import com.capitalone.dashboard.repository.ComponentRepository;
 import com.capitalone.dashboard.repository.HudsonCollectorRepository;
 import com.capitalone.dashboard.repository.HudsonJobRepository;
+import com.capitalone.dashboard.repository.FeatureBranchRepository;
+import com.capitalone.dashboard.model.FeatureBranch;
+
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +27,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+// import com.capitalone.dashboard.model.SCM;
+// import com.capitalone.dashboard.model.RepoBranch;
 
 
 /**
@@ -40,6 +46,7 @@ public class HudsonCollectorTask extends CollectorTask<HudsonCollector> {
     private final HudsonClient hudsonClient;
     private final HudsonSettings hudsonSettings;
     private final ComponentRepository dbComponentRepository;
+    private final FeatureBranchRepository featureBranchRepository;
 
     @Autowired
     public HudsonCollectorTask(TaskScheduler taskScheduler,
@@ -47,7 +54,8 @@ public class HudsonCollectorTask extends CollectorTask<HudsonCollector> {
                                HudsonJobRepository hudsonJobRepository,
                                BuildRepository buildRepository, HudsonClient hudsonClient,
                                HudsonSettings hudsonSettings,
-                               ComponentRepository dbComponentRepository) {
+                               ComponentRepository dbComponentRepository,
+                               FeatureBranchRepository featureBranchRepository) {
         super(taskScheduler, "Hudson");
         this.hudsonCollectorRepository = hudsonCollectorRepository;
         this.hudsonJobRepository = hudsonJobRepository;
@@ -55,6 +63,7 @@ public class HudsonCollectorTask extends CollectorTask<HudsonCollector> {
         this.hudsonClient = hudsonClient;
         this.hudsonSettings = hudsonSettings;
         this.dbComponentRepository = dbComponentRepository;
+        this.featureBranchRepository = featureBranchRepository;
     }
 
     @Override
@@ -140,7 +149,7 @@ public class HudsonCollectorTask extends CollectorTask<HudsonCollector> {
                 uniqueIDs.add(job.getId());
             }
             if ((job.isEnabled() && !uniqueIDs.contains(job.getId())) ||  // if it was enabled but not on a dashboard
-                    (!job.isEnabled() && uniqueIDs.contains(job.getId())) ){ // OR it was disabled and now on a dashboard
+                    (!job.isEnabled() && uniqueIDs.contains(job.getId())) ){ // OR it was disabled and now on a dashboard               
                 job.setEnabled(uniqueIDs.contains(job.getId()));
                 stateChangeJobList.add(job);
             }
@@ -190,6 +199,7 @@ public class HudsonCollectorTask extends CollectorTask<HudsonCollector> {
      * @param enabledJobs list of enabled {@link HudsonJob}s
      * @param buildsByJob maps a {@link HudsonJob} to a set of {@link Build}s.
      */
+    @SuppressWarnings("PMD")
     private void addNewBuilds(List<HudsonJob> enabledJobs,
                               Map<HudsonJob, Set<Build>> buildsByJob) {
         long start = System.currentTimeMillis();
@@ -205,6 +215,15 @@ public class HudsonCollectorTask extends CollectorTask<HudsonCollector> {
                         build.setCollectorItemId(job.getId());
                         buildRepository.save(build);
                         count++;
+                    }
+                    if( job.getJobName().equals(hudsonSettings.getDeployJobName())) {
+                        FeatureBranch featureBranch = hudsonClient.getFeatureBranchDetails(
+                           hudsonSettings.getGitEnabledJobName(), hudsonSettings,
+                            buildSummary.getBuildUrl(), job.getInstanceUrl());
+                        
+                        if (featureBranch != null) {
+                            featureBranchRepository.save(featureBranch);
+                        }
                     }
                 }
             }

@@ -1,6 +1,7 @@
 package com.capitalone.dashboard.collector;
 
 import com.capitalone.dashboard.model.Build;
+import com.capitalone.dashboard.model.FeatureBranch;
 import com.capitalone.dashboard.model.HudsonJob;
 
 import java.util.Map;
@@ -29,4 +30,5 @@ public interface HudsonClient {
      * @return a Build instance or null
      */
     Build getBuildDetails(String buildUrl, String instanceUrl);
+    FeatureBranch getFeatureBranchDetails(String gitEnabledJob, HudsonSettings hudsonSettings,String buildUrl, String instanceUrl);
 }
