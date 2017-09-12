@@ -12,7 +12,7 @@
             x: 0,
             y: -10
         },
-        textAnchor: 'middle'
+        textAnchor: 'left'
     };
 
     Chartist.plugins = Chartist.plugins || {};

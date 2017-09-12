@@ -119,14 +119,14 @@ hygieia-jira-feature-collector:
 # https://[your-jira-domain-name]/rest/api/2/issue/[some-issue-name]
 #  - JIRA_STORY_POINTS_FIELD_NAME=customfield_10002
 
-hygieia-jenkins-build-collector:
-  image: hygieia-jenkins-build-collector:latest
-  container_name: hygieia-jenkins-build
-  volumes:
-  - ./logs:/hygieia/logs
-  links:
-  - mongodb:mongo
-  - hygieia-api
+# hygieia-jenkins-build-collector:
+#   image: hygieia-jenkins-build-collector:latest
+#   container_name: hygieia-jenkins-build
+#   volumes:
+#   - ./logs:/hygieia/logs
+#   links:
+#   - mongodb:mongo
+#   - hygieia-api
 #  environment:
 #Jenkins server (required) - Can provide multiple
 #  - JENKINS_MASTER=ttp://jenkins.company.com
@@ -139,196 +139,196 @@ hygieia-jenkins-build-collector:
 #Determines if build console log is collected - defaults to false
 #  - JENKINS_SAVE_LOG=true
 
-hygieia-jenkins-cucumber-test-collector:
-  image: hygieia-jenkins-cucumber-test-collector:latest
-  container_name: hygieia-jenkins-cucumber
-  volumes:
-  - ./logs:/hygieia/logs
-  links:
-  - mongodb:mongo
-  - hygieia-api
-#  environment:
-#Jenkins server (required) - Can provide multiple
-#  - JENKINS_MASTER=ttp://jenkins.company.com
-#If using username/token for api authentication (required for Cloudbees Jenkins Ops Center) see sample
-#  - JENKINS_OP_CENTER=http://username:token@jenkins.company.com
-#Another option: If using same username/password Jenkins auth - set username/apiKey to use HTTP Basic Auth (blank=no auth)
-#  - JENKINS_USERNAME
-#  - JENKINS_API_KEY
-#  - JENKINS_CRON=0 0/5 * * * *
-#Determines if build console log is collected - defaults to false
-#  - JENKINS_SAVE_LOG=true
+# hygieia-jenkins-cucumber-test-collector:
+#   image: hygieia-jenkins-cucumber-test-collector:latest
+#   container_name: hygieia-jenkins-cucumber
+#   volumes:
+#   - ./logs:/hygieia/logs
+#   links:
+#   - mongodb:mongo
+#   - hygieia-api
+# #  environment:
+# #Jenkins server (required) - Can provide multiple
+# #  - JENKINS_MASTER=ttp://jenkins.company.com
+# #If using username/token for api authentication (required for Cloudbees Jenkins Ops Center) see sample
+# #  - JENKINS_OP_CENTER=http://username:token@jenkins.company.com
+# #Another option: If using same username/password Jenkins auth - set username/apiKey to use HTTP Basic Auth (blank=no auth)
+# #  - JENKINS_USERNAME
+# #  - JENKINS_API_KEY
+# #  - JENKINS_CRON=0 0/5 * * * *
+# #Determines if build console log is collected - defaults to false
+# #  - JENKINS_SAVE_LOG=true
 
-hygieia-sonar-codequality-collector:
-  image: hygieia-sonar-codequality-collector:latest
-  container_name: hygieia-sonar-codequality
-  volumes:
-  - ./logs:/hygieia/logs
-  links:
-  - mongodb:mongo
-  - hygieia-api
-#  environment:
-#  - SONAR_CRON=0 0/5 * * * *
-#  - SONAR_URL=http://localhost:9000
+# hygieia-sonar-codequality-collector:
+#   image: hygieia-sonar-codequality-collector:latest
+#   container_name: hygieia-sonar-codequality
+#   volumes:
+#   - ./logs:/hygieia/logs
+#   links:
+#   - mongodb:mongo
+#   - hygieia-api
+# #  environment:
+# #  - SONAR_CRON=0 0/5 * * * *
+# #  - SONAR_URL=http://localhost:9000
 
-hygieia-chat-ops-collector:
-  image: hygieia-chat-ops-collector:latest
-  container_name: hygieia-chat-ops
-  volumes:
-  - ./logs:/hygieia/logs
-  links:
-  - mongodb:mongo
-  - hygieia-api
-#  environment:
-#  - CHATOPS_CRON=0 0/5 * * * *
+# hygieia-chat-ops-collector:
+#   image: hygieia-chat-ops-collector:latest
+#   container_name: hygieia-chat-ops
+#   volumes:
+#   - ./logs:/hygieia/logs
+#   links:
+#   - mongodb:mongo
+#   - hygieia-api
+# #  environment:
+# #  - CHATOPS_CRON=0 0/5 * * * *
 
-hygieia-subversion-scm-collector:
-  image: hygieia-subversion-scm-collector:latest
-  container_name: hygieia-subversion
-  volumes:
-  - ./logs:/hygieia/logs
-  links:
-  - mongodb:mongo
-  - hygieia-api
-#  environment:
-#  - SUBVERSION_CRON:-0 0/5 * * * *
+# hygieia-subversion-scm-collector:
+#   image: hygieia-subversion-scm-collector:latest
+#   container_name: hygieia-subversion
+#   volumes:
+#   - ./logs:/hygieia/logs
+#   links:
+#   - mongodb:mongo
+#   - hygieia-api
+# #  environment:
+# #  - SUBVERSION_CRON:-0 0/5 * * * *
 
-#Shared subversion username and password
-#  - SUBVERSION_USERNAME=
-#  - SUBVERSION_PASSWORD=
+# #Shared subversion username and password
+# #  - SUBVERSION_USERNAME=
+# #  - SUBVERSION_PASSWORD=
 
-#Maximum number of days to go back in time when fetching commits
-#  - SUBVERSION_COMMIT_THRESHOLD_DAYS=15
+# #Maximum number of days to go back in time when fetching commits
+# #  - SUBVERSION_COMMIT_THRESHOLD_DAYS=15
 
-hygieia-bitbucket-scm-collector:
-  image: hygieia-bitbucket-scm-collector:latest
-  container_name: hygieia-bitbucket
-  volumes:
-  - ./logs:/hygieia/logs
-  links:
-  - mongodb:mongo
-  - hygieia-api
-#  environment:
-    #mandatory
-#  - BITBUCKET_HOST=mybitbucketrepo.com/
-#  - BITBUCKET_API=/rest/api/1.0/
-#  - BITBUCKET_CRON=0 0/5 * * * *
-#  - BITBUCKET_PRODUCT=cloud
+# hygieia-bitbucket-scm-collector:
+#   image: hygieia-bitbucket-scm-collector:latest
+#   container_name: hygieia-bitbucket
+#   volumes:
+#   - ./logs:/hygieia/logs
+#   links:
+#   - mongodb:mongo
+#   - hygieia-api
+# #  environment:
+#     #mandatory
+# #  - BITBUCKET_HOST=mybitbucketrepo.com/
+# #  - BITBUCKET_API=/rest/api/1.0/
+# #  - BITBUCKET_CRON=0 0/5 * * * *
+# #  - BITBUCKET_PRODUCT=cloud
 
-#Maximum number of days to go back in time when fetching commits. Only applicable to Bitbucket Cloud.
-#  - BITBUCKET_COMMIT_THRESHOLD_DAYS=15
+# #Maximum number of days to go back in time when fetching commits. Only applicable to Bitbucket Cloud.
+# #  - BITBUCKET_COMMIT_THRESHOLD_DAYS=15
 
-#Page size for rest calls. Only applicable to Bitbucket Server.
-#  - BITBUCKET_PAGE_SIZE=25
+# #Page size for rest calls. Only applicable to Bitbucket Server.
+# #  - BITBUCKET_PAGE_SIZE=25
 
-hygieia-versionone-collector:
-  image: hygieia-versionone-collector:latest
-  container_name: hygieia-versionone
-  volumes:
-  - ./logs:/hygieia/logs
-  links:
-  - mongodb:mongo
-  - hygieia-api
-#  environment:
-#Page size for data calls (VersionOne recommended 2000)
-#  - VERSIONONE_PAGE_SIZE=2000
+# hygieia-versionone-collector:
+#   image: hygieia-versionone-collector:latest
+#   container_name: hygieia-versionone
+#   volumes:
+#   - ./logs:/hygieia/logs
+#   links:
+#   - mongodb:mongo
+#   - hygieia-api
+# #  environment:
+# #Page size for data calls (VersionOne recommended 2000)
+# #  - VERSIONONE_PAGE_SIZE=2000
 
-#In-built folder housing prepared REST queries (required)
-#  - VERSIONONE_QUERY_FOLDER=v1api-queries
+# #In-built folder housing prepared REST queries (required)
+# #  - VERSIONONE_QUERY_FOLDER=v1api-queries
 
-#Jira API Query file names (String template requires the files to have .st extension) (required)
-#  - VERSIONONE_STORY_QUERY=story
-#  - VERSIONONE_EPIC_QUERY=epicinfo
-#  - VERSIONONE_PROJECT_QUERY=projectinfo
-#  - VERSIONONE_MEMBBER_QUERY=memberinfo
-#  - VERSIONONE_SPRINT_QUERY=sprintinfo
-#  - VERSIONONE_TEAM_QUERY=teaminfo
-#  - VERSIONONE_TRENDING_QUERY=trendinginfo
+# #Jira API Query file names (String template requires the files to have .st extension) (required)
+# #  - VERSIONONE_STORY_QUERY=story
+# #  - VERSIONONE_EPIC_QUERY=epicinfo
+# #  - VERSIONONE_PROJECT_QUERY=projectinfo
+# #  - VERSIONONE_MEMBBER_QUERY=memberinfo
+# #  - VERSIONONE_SPRINT_QUERY=sprintinfo
+# #  - VERSIONONE_TEAM_QUERY=teaminfo
+# #  - VERSIONONE_TRENDING_QUERY=trendinginfo
 
-# Trending Query:  Number of days in a sprint (not-required)
-#  - VERSIONONE_SPRINT_DAYS=60
-# Trending Query:  Length of sprint week (not-required)
-#  - VERSIONONE_SPRINT_END_PRIOR=7
+# # Trending Query:  Number of days in a sprint (not-required)
+# #  - VERSIONONE_SPRINT_DAYS=60
+# # Trending Query:  Length of sprint week (not-required)
+# #  - VERSIONONE_SPRINT_END_PRIOR=7
 
-#Scheduled Job prior minutes to recover data created during execution time (usually, 2 minutes is enough)
-#  - VERSIONONE_SCHEDULED_PRIOR_MIN=2
+# #Scheduled Job prior minutes to recover data created during execution time (usually, 2 minutes is enough)
+# #  - VERSIONONE_SCHEDULED_PRIOR_MIN=2
 
-#Delta change date that modulates the collector item task - should be about as far back as possible, in ISO format (required)
-#  - VERSIONONE_DELTA_COLLECTORITEM_START_DATE=2008-01-01T00:00:00.000000
+# #Delta change date that modulates the collector item task - should be about as far back as possible, in ISO format (required)
+# #  - VERSIONONE_DELTA_COLLECTORITEM_START_DATE=2008-01-01T00:00:00.000000
 
-#VersionOne Connection Details
-#Proxy assumes a host:port syntax
-#  - VERSIONONE_PROXY_URL=""
-#  - VERSIONONE_URL=https://www.versionone.com/our-company-instance/
-#Access token provided by VersionOne
-#  - VERSIONONE_ACCESS_TOKEN=accessToken
+# #VersionOne Connection Details
+# #Proxy assumes a host:port syntax
+# #  - VERSIONONE_PROXY_URL=""
+# #  - VERSIONONE_URL=https://www.versionone.com/our-company-instance/
+# #Access token provided by VersionOne
+# #  - VERSIONONE_ACCESS_TOKEN=accessToken
 
-#Start dates from which to begin collector data, if no other data is present - usually, a month back is appropriate (required)
-#  - VERSIONONE_DELTA_START_DATE=2015-03-01T00:00:00.000000
-#  - VERSIONONE_MASTER_START_DATE=2008-01-01T00:00:00.000000
+# #Start dates from which to begin collector data, if no other data is present - usually, a month back is appropriate (required)
+# #  - VERSIONONE_DELTA_START_DATE=2015-03-01T00:00:00.000000
+# #  - VERSIONONE_MASTER_START_DATE=2008-01-01T00:00:00.000000
 
-hygieia-udeploy-collector:
-  image: hygieia-udeploy-collector:latest
-  container_name: hygieia-udeploy
-  volumes:
-  - ./logs:/hygieia/logs
-  links:
-  - mongodb:mongo
-  - hygieia-api
-  environment:
-#UDeploy server (required) - Can provide multiple
-  - UDEPLOY_URL:-http://udeploy.company.com
-#UDeploy user name (required)
-  - UDEPLOY_USERNAME:-bobama
-#UDeploy password (required)
-  - UDEPLOY_PASSWORD:-s3cr3t
-#Collector schedule (required)
-#  - UDEPLOY_CRON:-0 0/5 * * * *
+# hygieia-udeploy-collector:
+#   image: hygieia-udeploy-collector:latest
+#   container_name: hygieia-udeploy
+#   volumes:
+#   - ./logs:/hygieia/logs
+#   links:
+#   - mongodb:mongo
+#   - hygieia-api
+#   environment:
+# #UDeploy server (required) - Can provide multiple
+#   - UDEPLOY_URL:-http://udeploy.company.com
+# #UDeploy user name (required)
+#   - UDEPLOY_USERNAME:-bobama
+# #UDeploy password (required)
+#   - UDEPLOY_PASSWORD:-s3cr3t
+# #Collector schedule (required)
+# #  - UDEPLOY_CRON:-0 0/5 * * * *
 
-hygieia-xldeploy-collector:
-  image: hygieia-xldeploy-collector:latest
-  container_name: hygieia-xldeploy
-  volumes:
-  - ./logs:/hygieia/logs
-  links:
-  - mongodb:mongo
-  - hygieia-api
-  environment:
-#XLDeploy server (required) - Can provide multiple
-  - XLDEPLOY_URL:-http://xldeploy.company.com
-#XLDeploy user name (required)
-  - XLDEPLOY_USERNAME:-bobama
-#XLDeploy password (required)
-  - XLDEPLOY_PASSWORD:-s3cr3t
-#Collector schedule (required)
-#  - XLDEPLOY_CRON:-0 0/5 * * * *
+# hygieia-xldeploy-collector:
+#   image: hygieia-xldeploy-collector:latest
+#   container_name: hygieia-xldeploy
+#   volumes:
+#   - ./logs:/hygieia/logs
+#   links:
+#   - mongodb:mongo
+#   - hygieia-api
+#   environment:
+# #XLDeploy server (required) - Can provide multiple
+#   - XLDEPLOY_URL:-http://xldeploy.company.com
+# #XLDeploy user name (required)
+#   - XLDEPLOY_USERNAME:-bobama
+# #XLDeploy password (required)
+#   - XLDEPLOY_PASSWORD:-s3cr3t
+# #Collector schedule (required)
+# #  - XLDEPLOY_CRON:-0 0/5 * * * *
 
-hygieia-artifactory-artifact-collector:
-  image: hygieia-artifactory-artifact-collector:latest
-  container_name: hygieia-artifactory
-  volumes:
-  - ./logs:/hygieia/logs
-  links:
-  - hygieia-api
-  environment:
-#JFrog Artifactory server (required) - Can provide multiple 
-  - ARTIFACTORY_URL=https://www.jfrog.com
-# Matches maven artifacts of the form [org]/[module]/[version]/[module]-[version]([-classifier])(.[ext])
-  - ARTIFACTORY_PATTERN0=(?<group>.+)/(?<module>[^/]+)/(?<version>[^/]+)/(?<artifact>\\k<module>)-\\k<version>(-(?<classifier>[^\\.]+))?(\\.(?<ext>.+))?
-# Matches ivy files of the form [org]/[module]/[revision]/ivy-[revision](-[classifier]).xml 
-  - ARTIFACTORY_PATTERN1=(?<group>.+)/(?<module>[^/]+)/(?<version>[^/]+)/(?<artifact>ivy)-\\k<version>(-(?<classifier>[^\\.]+))?\\.(?<ext>xml)
-# Matches ivy artifact files of the form [org]/[module]/[revision]/[type]/[artifact]-[revision](-[classifier])(.[ext])
-  - ARTIFACTORY_PATTERN2=(?<group>.+)/(?<module>[^/]+)/(?<version>[^/]+)/(?<type>[^/]+)/(?<artifact>[^\\.-/]+)-\\k<version>(-(?<classifier>[^\\.]+))?(\\.(?<ext>.+))?
+# hygieia-artifactory-artifact-collector:
+#   image: hygieia-artifactory-artifact-collector:latest
+#   container_name: hygieia-artifactory
+#   volumes:
+#   - ./logs:/hygieia/logs
+#   links:
+#   - hygieia-api
+#   environment:
+# #JFrog Artifactory server (required) - Can provide multiple 
+#   - ARTIFACTORY_URL=https://www.jfrog.com
+# # Matches maven artifacts of the form [org]/[module]/[version]/[module]-[version]([-classifier])(.[ext])
+#   - ARTIFACTORY_PATTERN0=(?<group>.+)/(?<module>[^/]+)/(?<version>[^/]+)/(?<artifact>\\k<module>)-\\k<version>(-(?<classifier>[^\\.]+))?(\\.(?<ext>.+))?
+# # Matches ivy files of the form [org]/[module]/[revision]/ivy-[revision](-[classifier]).xml 
+#   - ARTIFACTORY_PATTERN1=(?<group>.+)/(?<module>[^/]+)/(?<version>[^/]+)/(?<artifact>ivy)-\\k<version>(-(?<classifier>[^\\.]+))?\\.(?<ext>xml)
+# # Matches ivy artifact files of the form [org]/[module]/[revision]/[type]/[artifact]-[revision](-[classifier])(.[ext])
+#   - ARTIFACTORY_PATTERN2=(?<group>.+)/(?<module>[^/]+)/(?<version>[^/]+)/(?<type>[^/]+)/(?<artifact>[^\\.-/]+)-\\k<version>(-(?<classifier>[^\\.]+))?(\\.(?<ext>.+))?
 
   
-# Artifactory user name (required)
-#  - ARTIFACTORY_USERNAME=bobama
-# Artifactory API key (required)
-#  - ARTIFACTORY_API_KEY=s3cr3t
-#  - ARTIFACTORY_CRON=0 0/1 * * * *
-# The repo to collect artifacts from (required) - Can provide multiple (comma separated for each server)
-#  - ARTIFACTORY_REPO=prerelease,release
-# Artifactory REST endpoint
+# # Artifactory user name (required)
+# #  - ARTIFACTORY_USERNAME=bobama
+# # Artifactory API key (required)
+# #  - ARTIFACTORY_API_KEY=s3cr3t
+# #  - ARTIFACTORY_CRON=0 0/1 * * * *
+# # The repo to collect artifacts from (required) - Can provide multiple (comma separated for each server)
+# #  - ARTIFACTORY_REPO=prerelease,release
+# # Artifactory REST endpoint
 #  - ARTIFACTORY_ENDPOINT=artifactory/
 
 

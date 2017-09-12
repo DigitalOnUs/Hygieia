@@ -22,23 +22,27 @@
 
     <div class="dashboard-widgets container-fluid" widget-container dashboard="ctrl.dashboard" ng-if="template.widgetView == 'Widget'">
         <div class="row">
-            <div class="col-md-3">
+            <!-- <div class="col-md-0.9"></div> -->
+            <div class="col-md-4">
                 <div class="row">
                     <div class="col-xs-12">
-                        <widget name="feature" widget-title="Feature"></widget>
+                        <!-- <widget name="feature" widget-title="Feature"></widget> -->
                         <widget name="repo"></widget>
                         </div>
                 </div>
              </div>
 
-            <div class="col-md-6">
+            <div class="col-md-8">
                 <widget name="build"></widget>
-                <div class="container-fluid">
+                <!-- <widget name="myWidget"></widget> -->
+                <!-- <widget name="deploy2"></widget> -->
+
+
+<!--                 <div class="container-fluid">
                     <ul class="nav nav-tabs">
                         <li class="text-lg auth-modal-tab" ng-repeat="tab in template.minitabs" ng-click="template.miniToggleView($index)"
                             ng-class="tab.name == template.miniWidgetView ? 'active' : ''">
                             <a class="textColor-Performance" data-toggle="tab" >{{tab.name}}</a>
-
                         </li>
                         </span>
                     </ul>
@@ -57,10 +61,10 @@
                             <widget name="Performance" widget-title="Performance"></widget>
                         </div>
                     </div>
-                </div>
-            </div>
+                </div> -->
+            </div> 
 
-            <div class="col-md-3">
+<!--             <div class="col-md-3">
 
                 <div class="row">
                     <div class="col-sm-6 col-md-12">
@@ -72,7 +76,7 @@
                     </div>
                 </div>
 
-            </div>
+            </div> -->
         </div>
     </div>
 

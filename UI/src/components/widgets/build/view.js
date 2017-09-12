@@ -8,14 +8,15 @@
         .module(HygieiaConfig.module)
         .controller('BuildWidgetViewController', BuildWidgetViewController);
 
-    BuildWidgetViewController.$inject = ['$scope', 'buildData', 'DisplayState', '$q', '$uibModal'];
-    function BuildWidgetViewController($scope, buildData, DisplayState, $q, $uibModal) {
+    BuildWidgetViewController.$inject = ['$scope', 'buildData','featureBranchData', 'DisplayState', '$q', '$uibModal'];
+    function BuildWidgetViewController($scope, buildData, featureBranchData, DisplayState, $q, $uibModal) {
         var ctrl = this;
         var builds = [];
+        var dates=[];
 
         //region Chart Configuration
         // line chart config
-
+        // $scope.myVar = $scope.widgetConfig2;
         ctrl.lineOptions = {
             plugins: [
                 Chartist.plugins.gridBoundaries(),
@@ -28,7 +29,7 @@
             fullWidth: true,
             chartPadding: 7,
             axisX: {
-                showLabel: false
+                showLabel: true
             },
             axisY: {
                 labelInterpolationFnc: function(value) {
@@ -36,52 +37,74 @@
                 }
             }
         };
-
-        // bar chart config
-        ctrl.buildDurationOptions = {
-            plugins: [
-                Chartist.plugins.threshold({
-                    threshold: $scope.widgetConfig.options.buildDurationThreshold || 10
-                }),
-                Chartist.plugins.gridBoundaries(),
-                Chartist.plugins.tooltip(),
-                Chartist.plugins.axisLabels({
-                    stretchFactor: 1.4,
-                    axisX: {
-                        labels: [
-                            moment().subtract(14, 'days').format('MMM DD'),
-                            moment().subtract(7, 'days').format('MMM DD'),
-                            moment().format('MMM DD')
-                        ]
-                    }
-                })
-            ],
-            stackBars: true,
-            centerLabels: true,
-            axisY: {
-                offset: 30,
-                labelInterpolationFnc: function(value) {
-                    return value === 0 ? 0 : ((Math.round(value * 100) / 100) + '');
-                }
-            }
-        };
-
-        ctrl.buildDurationEvents = {
-            'draw': draw
-        };
+        $scope.myVar = dates;
         //endregion
-
+        // var fbData;
+        var lead_time;
         ctrl.load = function() {
+            dates=[];
+            lead_time = [];
             var deferred = $q.defer();
             var params = {
                 componentId: $scope.widgetConfig.componentId,
                 numberOfDays: 15
             };
+            // $scope.dummy2 = $scope.widgetConfig.start_time;
             buildData.details(params).then(function(data) {
                 builds = data.result;
                 processResponse(builds);
                 deferred.resolve(data.lastUpdated);
             });
+            featureBranchData.details($scope.widgetConfig.options.filter,
+                 $scope.widgetConfig.options.start_time,
+                 $scope.widgetConfig.options.end_time).then(function(data) {
+            // fbData = data;
+            //===============
+            var branch_names = [];
+                       
+            angular.forEach(data, function(data_item) {
+                if (data_item.name) {
+                   branch_names.push(data_item.name); 
+                }
+                else {
+                    branch_names.push("no name");
+                }
+                lead_time.push((data_item.deployTimeStamp - data_item.firstCommitTimeStamp)/(60*60*1000));
+            });
+
+            // bar chart config
+            ctrl.buildDurationOptions = {
+                plugins: [
+                    Chartist.plugins.threshold({
+                        threshold: $scope.widgetConfig.options.buildDurationThreshold || 10
+                    }),
+                    Chartist.plugins.gridBoundaries(),
+                    Chartist.plugins.tooltip(),
+                    Chartist.plugins.axisLabels({
+                        stretchFactor: 1.4,
+                        axisX: {
+                            labels: branch_names   
+                        }
+                    })
+                ],
+                stackBars: true,
+                centerLabels: true,
+                axisY: {
+                    offset: 30,
+                    labelInterpolationFnc: function(value) {
+                        return value === 0 ? 0 : ((Math.round(value * 100) / 100) + '');
+                    }
+                }
+            };
+
+            ctrl.buildDurationEvents = {
+                'draw': draw
+            };
+            //===============
+                    // builds = data.result;
+                    // processResponse(builds);
+                    // deferred.resolve(data.lastUpdated);
+                });
             return deferred.promise;
         };
 
@@ -131,7 +154,6 @@
                 }, 'ct-point-halo'), true);
             }
         }
-
         //region Processing API Response
         function processResponse(data) {
             var worker = {
@@ -148,7 +170,7 @@
                 cb({
                     series: getSeries()
                 });
-
+                // $scope.myVar = data;
                 function getSeries() {
                     var result = getPassFail(simplify(group(filter(data))));
 
@@ -193,9 +215,15 @@
                     // on that date
                     var passed = [], failed = [];
                     for (var x = 0; x <= 14; x++) {
-                        var date = moment(new Date()).subtract(x, 'days').format('L');
+                        var date_dummy = moment(new Date()).subtract(x, 'days');
+                        var date = date_dummy.format('L');
                         var data = simplifiedData[date];
+                        if((x%2==0))
+                            dates.push(date_dummy.format('MMM')+"\n"+date_dummy.format('D'));
+                        else
+                            dates.push("");
 
+                        $scope.myVar = dates;
                         // if date has no builds, add 0,0
                         if (!data || !data.length) {
                             passed.push(0);
@@ -217,7 +245,7 @@
                             }
                         }
                     }
-
+                    dates = dates.reverse();
                     return {
                         passed: passed.reverse(),
                         failed: failed.reverse()
@@ -339,11 +367,10 @@
             // call to webworker methods nad set the controller variables with the processed values
             worker.buildsPerDay(data, function (data) {
                 //$scope.$apply(function () {
-
-                var labels = [];
-                _(data.passed).forEach(function() {
-                    labels.push(1);
-                });
+                var labels = dates;
+                // _(data.passed).forEach(function() {
+                //     labels.push(1);
+                // });
 
                 ctrl.lineData = {
                     labels: labels,
@@ -372,7 +399,8 @@
                 });
                 buildDurationData.labels = labels;
                 //_(buildDurationData.series).forEach
-                ctrl.buildDurationData = buildDurationData;
+                ctrl.buildDurationData = {"series":[lead_time]};
+                // buildDurationData;
                 //});
             });
 

@@ -19,6 +19,11 @@
         </div>
 
         </form-group>
+        <br>
+<!--          <form-group class="text-center" input="BuildTimePeriod" errors="{required: 'Please select a collector'}">
+            <label class="modal-label">Select Time Period</label>
+           <select name="BuildTimePeriod" class="form-control" ng-model="buidTimePeriod" ng-options="x.name for x  in buildtimeFrames track by x.value" value="{{x}}"></select> 
+        </form-group> -->
 
         <form-group class="text-center" input="buildDurationThreshold" errors="{required:'Build threshold is required', pattern: 'Please enter a number'}">
             <label class="modal-label">Build duration threshold</label>
@@ -34,7 +39,6 @@
                 required>&nbsp;&nbsp;&nbsp;minutes
         </form-group>
 
-        <hr/>
 
         <form-group input="buildConsecutiveFailureThreshold" class="text-center" errors="{required:'Takeover criteria is required', pattern:'Please enter a number'}">
             <label class="modal-label">Alert takeover criteria:</label>
@@ -48,6 +52,26 @@
                 maxlength="3"
                 pattern="\d*\.?\d*"
                 required>&nbsp;&nbsp;&nbsp;consecutive build fails
+        </form-group>
+
+        <hr>
+        <label class="modal-label">Lead Time</label>
+
+
+        <form-group class="text-center" input="TimePeriod" errors="{required: 'Please select a collector'}">
+        <br>
+            <label class="modal-label">Select Time Period</label>
+           <select name="TimePeriod" class="form-control" ng-model="timePeriod" ng-options="x.name for x  in timeFrames track by x.value" value="{{x}}"></select> 
+            
+           <!-- <input type="text" name="TimePeriod" ng-model="buildConfig.timePeriod" value="7 Days"> Days -->
+
+        </form-group>
+
+        <form-group class="text-center" input="Filter" errors="{required:'Filter is required', pattern:'Please select an option'}">
+            <label class="modal-label">Filter</label>
+            <select name="Filter" class="form-control" ng-model="buildConfig.filter" ng-options="x.name for x in filterOptions track by x.value " value="{{x}}"></select>
+            <!-- <input type="text" name="Filter" ng-model="filter" value="deploy"> -->
+            {{filter}}
         </form-group>
 
         <div class="button-row row text-center">

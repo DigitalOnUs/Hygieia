@@ -109,6 +109,7 @@
 
             // public methods
             $scope.configModal = configModal;
+            // $scope.configLeadTimeModal = configLeadTimeModal;
             $scope.hasPermission = hasPermission;
             $scope.setState = setState;
             $scope.init = init;
@@ -118,7 +119,7 @@
                 // load up a modal in the context of the settings defined in
                 // the config property when the widget was registered
                 var modalConfig = angular.extend({
-                	controllerAs: 'ctrl',
+                    controllerAs: 'ctrl',
                     resolve: {
                         modalData: function () {
                             return {
@@ -128,7 +129,6 @@
                         }
                     }
                 }, $scope.widgetDefinition.config);
-
                 // when the widget closes if an object is passed we'll assume it's an updated
                 // widget configuration so try and send it to the api or update the existing one
                 $uibModal.open(modalConfig).result.then(upsertWidget);

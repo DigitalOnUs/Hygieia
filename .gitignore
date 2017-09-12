@@ -47,3 +47,5 @@ application.properties
 UI/package-lock.json
 api/dashboard.properties
 collectors/build/jenkins/application.properties
+api/src/main/resources/application.properties
+docker-compose.yml
