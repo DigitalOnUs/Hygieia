@@ -14,9 +14,9 @@
         var ctrl = this;
 
         ctrl.tabs = [
-            { name: "Widget"},
-            { name: "Pipeline"},
-            { name: "Cloud"}
+            { name: "DevOps Metrics"},
+            { name: "Continous Testing"},
+            // { name: "Cloud"}
         ];
 
 

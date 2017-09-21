@@ -75,9 +75,9 @@
             // bar chart config
             ctrl.buildDurationOptions = {
                 plugins: [
-                    Chartist.plugins.threshold({
-                        threshold: $scope.widgetConfig.options.buildDurationThreshold || 10
-                    }),
+                    // Chartist.plugins.threshold({
+                        // threshold: $scope.widgetConfig.options.buildDurationThreshold || 10
+                    // }),
                     Chartist.plugins.gridBoundaries(),
                     Chartist.plugins.tooltip(),
                     Chartist.plugins.axisLabels({
@@ -219,9 +219,9 @@
                         var date = date_dummy.format('L');
                         var data = simplifiedData[date];
                         if((x%2==0))
-                            dates.push(date_dummy.format('MMM')+"\n"+date_dummy.format('D'));
-                        else
                             dates.push("");
+                        else
+                            dates.push( date_dummy.format('MM') + "/" + date_dummy.format('DD'));
 
                         $scope.myVar = dates;
                         // if date has no builds, add 0,0

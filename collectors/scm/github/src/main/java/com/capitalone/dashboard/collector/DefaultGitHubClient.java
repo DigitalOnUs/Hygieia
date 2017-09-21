@@ -66,11 +66,11 @@ public class DefaultGitHubClient implements GitHubClient {
     @Override
     @SuppressWarnings({"PMD.NPathComplexity", "PMD.ExcessiveMethodLength"}) // agreed, fixme
     public List<Commit> getCommits(GitHubRepo repo, boolean firstRun) throws RestClientException {
-
         List<Commit> commits = new ArrayList<>();
 
         // format URL
         String repoUrl = (String) repo.getOptions().get("url");
+
         if (repoUrl.endsWith(".git")) {
             repoUrl = repoUrl.substring(0, repoUrl.lastIndexOf(".git"));
         }
@@ -83,7 +83,7 @@ public class DefaultGitHubClient implements GitHubClient {
             protocol = url.getProtocol();
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
-            LOG.error(e.getMessage());
+            LOG.error("MALFORMED : ....." + e.getMessage());
         }
         String hostUrl = protocol + "://" + hostName + "/";
         String repoName = repoUrl.substring(hostUrl.length(), repoUrl.length());
@@ -134,6 +134,7 @@ public class DefaultGitHubClient implements GitHubClient {
         while (!lastPage) {
             ResponseEntity<String> response = makeRestCall(queryUrlPage, repo.getUserId(), decryptedPassword);
             JSONArray jsonArray = paresAsArray(response);
+            try {
             for (Object item : jsonArray) {
                 JSONObject jsonObject = (JSONObject) item;
                 String sha = str(jsonObject, "sha");
@@ -148,6 +149,7 @@ public class DefaultGitHubClient implements GitHubClient {
                 JSONArray parents = (JSONArray) jsonObject.get("parents");
                 List<String> parentShas = new ArrayList<>();
                 if (parents != null) {
+
                     for (Object parentObj : parents) {
                         parentShas.add(str((JSONObject) parentObj, "sha"));
                     }
@@ -167,13 +169,18 @@ public class DefaultGitHubClient implements GitHubClient {
                 commit.setType(getCommitType(CollectionUtils.size(parents), message));
                 commits.add(commit);
             }
-            if (CollectionUtils.isEmpty(jsonArray)) {
-                lastPage = true;
-            } else {
-                lastPage = isThisLastPage(response);
-                pageNumber++;
-                queryUrlPage = queryUrl + "&page=" + pageNumber;
-            }
+        }
+        catch (Exception e){ 
+            continue;
+        }
+                if (CollectionUtils.isEmpty(jsonArray)) {
+                    lastPage = true;
+                } else {
+                    lastPage = isThisLastPage(response);
+                    pageNumber++;
+                    queryUrlPage = queryUrl + "&page=" + pageNumber;
+
+                }
         }
         return commits;
     }
